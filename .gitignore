@@ -1,0 +1,39 @@
+node_modules/
+client/node_modules/
+client/build/
+server/node_modules/
+server/.env
+.env
+
+# Runtime logs
+*.log
+*.err
+
+# Auto-generated auth secret (never commit)
+server/data/.jwt-secret
+
+# Semantic embedding cache — only used when RAG_SEMANTIC=on; rebuilt on demand.
+# Kept out of the repo/deploy to stay lightweight (it is ~50 MB).
+server/rag/embcache/store.json
+
+# Pre-loaded document library text cache — regenerated on demand.
+server/data/library-cache.json
+
+# Runtime feature data — populated by user activity; must not ship pre-populated.
+server/data/feedback.json
+server/data/audit.json
+server/data/interactions.json
+
+# Persistent shared document repository — user-uploaded content; never commit.
+server/data/repository/
+
+# Rate-source library (CPWD/Railway SORs, IREPS LARs) — uploaded content.
+server/data/ratebooks/
+
+# Guidelines & circulars registry — uploaded content.
+server/data/circulars/
+
+# Standards & codes (rule books) with version history — uploaded content.
+server/data/rulebooks/
+
+

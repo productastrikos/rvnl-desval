@@ -129,7 +129,7 @@ export default function Settings() {
           </div>
           <div className="flex items-start gap-2">
             <span className="text-sky-400 font-mono font-bold mt-0.5">3.</span>
-            <span>Load the knowledge base: add rate schedules under <span className="text-sky-400">Rate Analysis → Rate Sources</span>, circulars under <span className="text-sky-400">Guidelines &amp; Circulars</span>, and day-to-day documents in the <span className="text-sky-400">Knowledge Hub</span>.</span>
+            <span>Load the knowledge base: add the standards you review against under <span className="text-sky-400">Standards &amp; Codes</span>, rate schedules under <span className="text-sky-400">Rate Analysis → Rate Sources</span>, circulars under <span className="text-sky-400">Guidelines &amp; Circulars</span>, and day-to-day documents in the <span className="text-sky-400">Knowledge Hub</span>.</span>
           </div>
           <div className="flex items-start gap-2">
             <span className="text-sky-400 font-mono font-bold mt-0.5">4.</span>

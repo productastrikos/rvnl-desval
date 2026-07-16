@@ -31,18 +31,42 @@ finished answer. Vision-capable requests receive page images so scanned pages, f
 drawings can be read.
 
 ### Knowledge base
-The retrieval engine (hybrid BM25 keyword search + local semantic embeddings, fused with RRF and
-diversified with MMR) is grounded in the references the teams maintain **inside the app**:
+The retrieval engine is grounded in the references the teams maintain **inside the app**:
 
-- **Standards & Codes** (admin, version-controlled): RDSO specifications, IRS codes, the Schedule
-  of Dimensions, IR manuals (IRPWM/IRBM/ACTM…), CPWD and IS/EN standards. Only the *active*
-  version of each document is searched, so answers always reflect the current edition.
-- **Guidelines & Circulars registry**: every tracked circular's text is indexed on upload.
-- **Rate sources**: every uploaded SOR/LAR schedule is indexed for retrieval and scanned directly
-  by the rate-search tools.
+- **Standards & Codes** (`/standards`, admin, version-controlled): RDSO specifications, IRS codes,
+  the Schedule of Dimensions, IR manuals (IRPWM/IRBM/ACTM), CPWD and IS/EN standards. Only the
+  *active* version of each document is searched, so reviews always cite the current edition —
+  uploading a new version (e.g. when a correction slip is issued) is what makes the whole
+  application start reviewing against the new requirement. Superseded versions are retained for
+  audit and rollback.
+- **Guidelines & Circulars registry** (`/circulars`): every tracked circular's text is indexed on
+  upload, with supersession/amendment links extracted automatically.
+- **Rate sources** (`/rates`): every uploaded SOR/LAR schedule is indexed for retrieval and
+  scanned directly by the rate-search tools.
+
+All three persist to disk and are **re-indexed automatically at boot**.
 
 Any PDF placed in `server/docs/` is additionally pre-ingested at boot as built-in reference
 material (the directory ships empty).
+
+> **The knowledge base is machine-local.** `server/data/{rulebooks,circulars,ratebooks}/` are
+> gitignored (they hold uploaded documents, not source), so a fresh deployment starts empty and the
+> standards must be uploaded once via the UI. See "First-time setup" below.
+
+#### Retrieval: BM25 by default, semantic optional
+Retrieval uses a pure-JS **BM25 keyword leg** by default — zero native dependencies, deploys
+anywhere, and is well-suited to clause/standard lookups where the query terms are distinctive
+(“vertical clearance”, “USFD defect classification”). Semantic embeddings are **off by default**
+because `@xenova/transformers` pulls native ML binaries and spikes RAM while indexing, which
+OOM-crashes memory-capped shared hosting. To enable on a host with headroom (a VPS):
+
+```
+cd server && npm install @xenova/transformers   # not a declared dependency
+# then set RAG_SEMANTIC=on
+```
+
+When enabled, BM25 and semantic legs are fused with RRF and diversified with MMR. If the flag is on
+but the package is absent, the engine transparently falls back to BM25 rather than failing.
 
 ### Your documents (browser-held)
 Day-to-day documents are uploaded on the **Knowledge Hub** page. On upload the server:
@@ -121,10 +145,23 @@ loaded.
 
 ### First-time setup for a project office
 
+The knowledge base ships empty — every compliance verdict is only as good as what is loaded, so do
+this before relying on any output:
+
 1. Sign in as admin and add users (department-wise) under **User Management**.
-2. Upload the standards you review against under **Settings → Standards & Codes** (rulebooks API).
-3. Add rate schedules under **Rate Analysis → Rate Sources** (CPWD SOR, zonal SORs, IREPS LARs).
+2. Upload the standards you review against under **Standards & Codes** (`/standards`) — RDSO specs,
+   IRS codes, the Schedule of Dimensions, IR manuals. Record the edition and correction-slip level
+   in each name/note so reviewers can see exactly what is in force. Current consolidated editions
+   are published by IRICEN at <https://iricen.gov.in/iricen/CodeManualNew.jsp>.
+3. Add rate schedules under **Rate Analysis → Rate Sources** (CPWD SOR/DSR, zonal SORs, IREPS LAR
+   extracts). IREPS LARs are behind portal authentication and must be exported by a user with
+   access — they cannot be fetched by the app.
 4. Add the circulars your contracts work to under **Guidelines & Circulars**.
+
+**Keeping it current:** when a correction slip or new edition is issued, upload it as a **new
+version** of the existing standard (Standards & Codes → *New version*) rather than a separate
+entry. The new version becomes active, the old one is marked superseded but retained, and every
+module immediately starts citing the new edition.
 
 ---
 

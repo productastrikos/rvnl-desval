@@ -39,7 +39,10 @@ const INDEX_FILE = path.join(RB_DIR, 'index.json');
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: MAX_UPLOAD_BYTES } });
 
-const CATEGORIES = ['IRS Code', 'RDSO Specification', 'Schedule of Dimensions', 'IR Manual (IRPWM/IRBM/ACTM…)', 'CPWD Specification', 'IS / BIS Standard', 'EN / UIC / International Standard', 'Rule Book'];
+// Kept strictly ASCII: these values round-trip through multipart form fields and
+// query strings, and a non-ASCII label (e.g. a "…") silently fails the
+// CATEGORIES.includes() check below and mis-files the document as "Rule Book".
+const CATEGORIES = ['IRS Code', 'RDSO Specification', 'Schedule of Dimensions', 'IR Manual (IRPWM/IRBM/ACTM)', 'CPWD Specification', 'IS / BIS Standard', 'EN / UIC / International Standard', 'Rule Book'];
 
 // ── Disk helpers ──────────────────────────────────────────────────────────────
 function ensureDir() { if (!fs.existsSync(RB_DIR)) fs.mkdirSync(RB_DIR, { recursive: true }); }

@@ -16,6 +16,7 @@ import Layout        from './components/Layout';
 import RateAnalysis      from './pages/RateAnalysis';
 import Circulars         from './pages/Circulars';
 import DrawingCompliance from './pages/DrawingCompliance';
+import Standards         from './pages/Standards';
 import LessonsLearned    from './pages/LessonsLearned';
 import DocumentCompare   from './pages/DocumentCompare';
 import { getBaseKnowledge, getLibrary } from './services/aiService';
@@ -123,6 +124,7 @@ function AppRoutes() {
         <Route path="/history"   element={<InteractionHistory />} />
 
         {/* Admin-only routes */}
+        <Route path="/standards" element={<AdminRoute><Standards /></AdminRoute>} />
         <Route path="/settings"  element={<AdminRoute><Settings /></AdminRoute>} />
         <Route path="/users"     element={<AdminRoute><UserManagement /></AdminRoute>} />
         <Route path="/audit"     element={<AdminRoute><AuditLog /></AdminRoute>} />

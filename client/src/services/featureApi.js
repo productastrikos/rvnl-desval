@@ -260,6 +260,40 @@ export async function deleteCircular(id) {
 }
 export async function circularDigest(body) { return postJSON('/circulars/digest', body); }
 
+// ── Standards & Codes library (admin) — version-controlled rule books ────────
+export async function listRuleBooks() { return getJSON('/rulebooks'); }
+export async function addRuleBook({ file, name, category, note }) {
+  const form = new FormData();
+  form.append('file', file);
+  if (name) form.append('name', name);
+  if (category) form.append('category', category);
+  if (note) form.append('note', note);
+  return postForm('/rulebooks', form);
+}
+// Upload a newer edition (e.g. after a correction slip) — becomes the active version.
+export async function addRuleBookVersion(id, { file, note, category }) {
+  const form = new FormData();
+  form.append('file', file);
+  if (note) form.append('note', note);
+  if (category) form.append('category', category);
+  return postForm(`/rulebooks/${id}/versions`, form);
+}
+// Roll back to / activate a specific version — only the active one is searched.
+export async function activateRuleBookVersion(id, version) {
+  const res = await netFetch(`${API_BASE}/rulebooks/${id}/activate`, {
+    method: 'PATCH', headers: authHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify({ version }),
+  });
+  return handle(res);
+}
+export async function deleteRuleBookVersion(id, version) {
+  const res = await netFetch(`${API_BASE}/rulebooks/${id}/versions/${version}`, { method: 'DELETE', headers: authHeaders() });
+  return handle(res);
+}
+export async function deleteRuleBook(id) {
+  const res = await netFetch(`${API_BASE}/rulebooks/${id}`, { method: 'DELETE', headers: authHeaders() });
+  return handle(res);
+}
+
 // ── Prompt-driven dashboard analytics ────────────────────────────────────────
 export async function dashboardAnalytics(body) { return postJSON('/dashboard/analytics', body); }
 
